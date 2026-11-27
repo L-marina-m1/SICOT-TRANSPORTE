@@ -1,25 +1,59 @@
 ﻿import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
-  Bus, MapPin, Power, TrendingUp, TriangleAlert, Navigation, Satellite,
+  Bus, MapPin, Power, TrendingUp, TriangleAlert, Navigation, Users, Wrench,
   ShieldCheck, CalendarDays, Clock, RefreshCw, ArrowRight, Bell, Info,
 } from 'lucide-react'
 import EscenaPuno from '../components/EscenaPuno'
+import EstadoTabla from '../components/ui/EstadoTabla'
+import { conductoresApi, recorridosApi, vehiculosApi } from '../api/recursos'
+import { useCarga } from '../hooks/useCarga'
+import { formatearHora } from '../utils/formato'
 
-const resumen = [
-  { id: 'rutas', numero: 30, texto: 'Rutas totales', tipo: 'neutro', Icono: Bus, Deco: MapPin },
-  { id: 'activos', numero: 24, texto: 'Activos (80%)', tipo: 'ok', Icono: Power, Deco: TrendingUp },
-  { id: 'incidencias', numero: 2, texto: 'Incidencias (7%)', tipo: 'alerta', Icono: TriangleAlert, Deco: TriangleAlert },
-  { id: 'gps', numero: 4, texto: 'Sin reporte GPS', tipo: 'error', Icono: Navigation, Deco: Satellite },
-]
+const SIN_DATOS = { vehiculos: [], conductores: [], recorridos: [] }
 
-const vehiculos = [
-  { codigo: '15', placa: 'ABC-123', ubicacion: 'Av. Principal', estado: 'En ruta', hora: '10:20' },
-  { codigo: '07', placa: 'DEF-456', ubicacion: 'Mercado Central', estado: 'Detenido', hora: '10:18' },
-  { codigo: '08', placa: 'GHI-321', ubicacion: 'Cerca del Mercado', estado: 'En ruta', hora: '10:17' },
-  { codigo: '22', placa: 'JKL-654', ubicacion: 'Av. del Sol', estado: 'En ruta', hora: '10:19' },
-  { codigo: '11', placa: 'MNO-789', ubicacion: 'Av. Universitaria', estado: 'En ruta', hora: '10:21' },
-]
+async function cargarPanel() {
+  const [vehiculos, conductores, recorridos] = await Promise.all([
+    vehiculosApi.listar(),
+    conductoresApi.listar(),
+    recorridosApi.listar({ estado: 'en_curso' }),
+  ])
+  return { vehiculos, conductores, recorridos }
+}
+
+function construirResumen({ vehiculos, conductores }) {
+  const total = vehiculos.length
+  const contar = (estado) => vehiculos.filter((v) => v.estado === estado).length
+  const enRuta = contar('en_ruta')
+  const porcentaje = total ? Math.round((enRuta / total) * 100) : 0
+
+  return [
+    { id: 'flota', numero: total, texto: 'Vehículos registrados', tipo: 'neutro', Icono: Bus, Deco: MapPin },
+    { id: 'ruta', numero: enRuta, texto: `En ruta (${porcentaje}%)`, tipo: 'ok', Icono: Power, Deco: TrendingUp },
+    { id: 'mant', numero: contar('mantenimiento'), texto: 'En mantenimiento', tipo: 'alerta', Icono: Wrench, Deco: TriangleAlert },
+    {
+      id: 'cond',
+      numero: conductores.filter((c) => c.estado === 'activo').length,
+      texto: 'Conductores activos',
+      tipo: 'error',
+      Icono: Users,
+      Deco: Navigation,
+    },
+  ]
+}
+
+/** Une cada recorrido en curso con la placa del vehículo y el nombre del conductor. */
+function recorridosEnCurso({ recorridos, vehiculos, conductores }) {
+  const placas = Object.fromEntries(vehiculos.map((v) => [v.id, v.placa]))
+  const nombres = Object.fromEntries(conductores.map((c) => [c.id, `${c.nombres} ${c.apellidos}`]))
+  return recorridos.map((r) => ({
+    id: r.id,
+    placa: placas[r.vehiculo_id] || `#${r.vehiculo_id}`,
+    conductor: nombres[r.conductor_id] || '—',
+    ruta: `${r.origen} → ${r.destino}`,
+    salida: formatearHora(r.fecha_inicio),
+  }))
+}
 
 const capitalizar = (t) =>
   t.split(' ').map((p) => (p === 'de' || !p ? p : p[0].toUpperCase() + p.slice(1))).join(' ')
@@ -27,6 +61,10 @@ const capitalizar = (t) =>
 export default function Inicio() {
   const [ahora, setAhora] = useState(new Date())
   const [mapaKey, setMapaKey] = useState(0)
+  const { datos, error, cargando, recargar } = useCarga(cargarPanel, 'panel')
+  const panel = datos || SIN_DATOS
+  const resumen = construirResumen(panel)
+  const enCurso = recorridosEnCurso(panel)
 
   useEffect(() => {
     const t = setInterval(() => setAhora(new Date()), 30000)
@@ -52,12 +90,19 @@ export default function Inicio() {
         </div>
       </header>
 
+      {error && (
+        <div className="aviso error" role="alert">
+          <span>{error.message}</span>
+          <button className="btn-link" onClick={recargar}>Reintentar</button>
+        </div>
+      )}
+
       <section className="gx-stats">
         {resumen.map(({ id, numero, texto, tipo, Icono, Deco }, i) => (
           <div key={id} className={`gx-stat ${tipo}`} style={{ animationDelay: `${i * 0.08}s` }}>
             <div className="gx-stat-ico"><Icono size={28} /></div>
             <div className="gx-stat-txt">
-              <strong>{numero}</strong>
+              <strong>{datos ? numero : '…'}</strong>
               <span>{texto}</span>
             </div>
             <Deco className="gx-stat-deco" size={70} strokeWidth={1.6} />
@@ -88,26 +133,27 @@ export default function Inicio() {
 
         <div className="caja">
           <div className="caja-titulo">
-            <h2><Bus size={20} />Vehículos en ruta</h2>
-            <Link to="/vehiculos" className="btn-ver">Ver todos <ArrowRight size={15} /></Link>
+            <h2><Bus size={20} />Recorridos en curso</h2>
+            <Link to="/vehiculos" className="btn-ver">Ver vehículos <ArrowRight size={15} /></Link>
           </div>
           <div className="tabla-scroll">
             <table className="tabla">
               <thead>
-                <tr><th>Código</th><th>Placa</th><th>Ubicación</th><th>Estado</th><th>Hora</th></tr>
+                <tr><th>Placa</th><th>Conductor</th><th>Ruta</th><th>Salida</th></tr>
               </thead>
               <tbody>
-                {vehiculos.map((v) => (
-                  <tr key={v.codigo}>
-                    <td>{v.codigo}</td>
-                    <td>{v.placa}</td>
-                    <td>{v.ubicacion}</td>
-                    <td>
-                      <span className={`pill ${v.estado === 'En ruta' ? 'ok' : 'warn'}`}>
-                        <i />{v.estado}
-                      </span>
-                    </td>
-                    <td>{v.hora}</td>
+                <EstadoTabla
+                  columnas={4}
+                  cargando={cargando && !datos}
+                  vacio={enCurso.length === 0}
+                  mensajeVacio="No hay recorridos en curso"
+                />
+                {enCurso.map((r) => (
+                  <tr key={r.id}>
+                    <td><b>{r.placa}</b></td>
+                    <td>{r.conductor}</td>
+                    <td>{r.ruta}</td>
+                    <td>{r.salida}</td>
                   </tr>
                 ))}
               </tbody>
@@ -116,6 +162,7 @@ export default function Inicio() {
         </div>
       </section>
 
+      {/* Aún de ejemplo: el backend no tiene módulo de notificaciones. */}
       <section className="caja">
         <div className="caja-titulo">
           <h2><Bell size={20} />Últimas notificaciones</h2>

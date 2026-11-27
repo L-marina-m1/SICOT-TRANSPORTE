@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { useAuth } from '../auth/AuthContext'
 
 const IconoUsuario = () => (
   <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -35,11 +36,29 @@ export default function Login() {
   const [usuario, setUsuario] = useState('')
   const [clave, setClave] = useState('')
   const [verClave, setVerClave] = useState(false)
+  const [error, setError] = useState('')
+  const [enviando, setEnviando] = useState(false)
   const navigate = useNavigate()
+  const { state } = useLocation()
+  const { usuario: sesion, iniciarSesion } = useAuth()
 
-  const entrar = (e) => {
+  if (sesion) return <Navigate to={state?.desde || '/inicio'} replace />
+
+  const entrar = async (e) => {
     e.preventDefault()
-    navigate('/inicio')
+    if (!usuario.trim() || !clave) {
+      setError('Ingresa tu correo y tu contraseña')
+      return
+    }
+    setEnviando(true)
+    setError('')
+    try {
+      await iniciarSesion(usuario.trim(), clave)
+      navigate(state?.desde || '/inicio', { replace: true })
+    } catch (err) {
+      setError(err.message)
+      setEnviando(false)
+    }
   }
 
   return (
@@ -59,7 +78,9 @@ export default function Login() {
           <label className="campo">
             <span className="campo-icono"><IconoUsuario /></span>
             <input
-              placeholder="Usuario"
+              type="email"
+              placeholder="Correo"
+              autoComplete="username"
               value={usuario}
               onChange={(e) => setUsuario(e.target.value)}
             />
@@ -70,15 +91,24 @@ export default function Login() {
             <input
               type={verClave ? 'text' : 'password'}
               placeholder="Contraseña"
+              autoComplete="current-password"
               value={clave}
               onChange={(e) => setClave(e.target.value)}
             />
-            <button type="button" className="campo-ojo" onClick={() => setVerClave(!verClave)}>
+            <button
+              type="button"
+              className="campo-ojo"
+              onClick={() => setVerClave(!verClave)}
+              aria-label={verClave ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+            >
               <IconoOjo />
             </button>
           </label>
 
-          <button type="submit" className="btn-ingresar">Ingresar</button>
+          {error && <p className="login-error" role="alert">{error}</p>}
+          <button type="submit" className="btn-ingresar" disabled={enviando}>
+            {enviando ? 'Ingresando…' : 'Ingresar'}
+          </button>
           <p className="login-pie">¿Problemas para entrar? Contacta a Soporte TI</p>
         </form>
       </div>

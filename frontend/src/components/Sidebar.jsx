@@ -1,17 +1,20 @@
 ﻿import { NavLink, useNavigate } from 'react-router-dom'
 import { Home, Bus, BarChart3, FileText, Bell, Settings, LogOut } from 'lucide-react'
+import { useAuth } from '../auth/AuthContext'
+import { NOMBRE_ROL, ROLES_ADMINISTRACION } from '../auth/roles'
 import '../sicot-fotos.css'
 
 // pon false si tu imagen de la catedral NO trae el texto "Puno avanza..."
 const TEXTO_EN_IMAGEN = true
 
+// roles: si se indica, el enlace solo se muestra a esos roles
 const items = [
   { ruta: '/inicio', texto: 'Inicio', Icono: Home },
-  { ruta: '/vehiculos', texto: 'Vehículos en ruta', Icono: Bus },
+  { ruta: '/vehiculos', texto: 'Vehículos', Icono: Bus },
   { ruta: '/estadisticas', texto: 'Estadísticas', Icono: BarChart3 },
   { ruta: '/reportes', texto: 'Reportes', Icono: FileText },
   { ruta: '/notificaciones', texto: 'Notificaciones', Icono: Bell, badge: 3 },
-  { ruta: '/configuracion', texto: 'Configuración', Icono: Settings },
+  { ruta: '/configuracion', texto: 'Configuración', Icono: Settings, roles: ROLES_ADMINISTRACION },
 ]
 
 const ocultar = (e) => {
@@ -20,6 +23,14 @@ const ocultar = (e) => {
 
 export default function Sidebar({ onNavegar }) {
   const navigate = useNavigate()
+  const { usuario, cerrarSesion } = useAuth()
+  const visibles = items.filter((item) => !item.roles || item.roles.includes(usuario?.rol))
+
+  const salir = () => {
+    cerrarSesion()
+    navigate('/login', { replace: true })
+  }
+
   return (
     <aside className="sidebar">
       <div className="logo">
@@ -36,14 +47,21 @@ export default function Sidebar({ onNavegar }) {
         <p><b>Sistema de</b> Control y Seguimiento de Transporte</p>
       </div>
 
+      {usuario && (
+        <div className="sidebar-usuario">
+          <b title={usuario.nombre}>{usuario.nombre}</b>
+          <span>{NOMBRE_ROL[usuario.rol] || usuario.rol}</span>
+        </div>
+      )}
+
       <nav>
-        {items.map(({ ruta, texto, Icono, badge }) => (
+        {visibles.map(({ ruta, texto, Icono, badge }) => (
           <NavLink key={ruta} to={ruta} className="enlace" onClick={onNavegar}>
             <span className="enlace-in"><Icono size={20} />{texto}</span>
             {badge && <span className="badge">{badge}</span>}
           </NavLink>
         ))}
-        <button className="enlace" onClick={() => navigate('/login')}>
+        <button className="enlace" onClick={salir}>
           <span className="enlace-in"><LogOut size={20} />Cerrar sesión</span>
         </button>
       </nav>
