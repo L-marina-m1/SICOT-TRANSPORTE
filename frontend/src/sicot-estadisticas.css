@@ -1,0 +1,56 @@
+﻿/* banner corto + boton pdf */
+.gx-hero.corto { min-height: 210px; padding-top: 88px; }
+.gx-hero.corto h1 { font-size: 40px; }
+button.gx-pill { border: none; cursor: pointer; font-family: inherit; transition: .2s; }
+button.gx-pill.st-pdf { background: linear-gradient(90deg, #c8102e, #ff4d5e); color: #fff; }
+button.gx-pill.st-pdf:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(239, 35, 60, .4); }
+
+/* selector de periodo */
+.st-seg { display: inline-flex; gap: 6px; padding: 6px; background: #fff; border-radius: 18px; box-shadow: 0 6px 18px rgba(120, 20, 40, .10); flex-wrap: wrap; align-self: flex-start; }
+.st-seg button { display: inline-flex; align-items: center; gap: 8px; border: none; background: transparent; color: #8f0a22; font-family: inherit; font-weight: 700; font-size: 14px; padding: 10px 18px; border-radius: 13px; cursor: pointer; transition: .2s; }
+.st-seg button:hover { background: #ffe3e7; }
+.st-seg button.on { background: linear-gradient(135deg, #e31b3a, #b30f2a); color: #fff; box-shadow: 0 6px 14px rgba(200, 16, 46, .35); }
+
+/* filas */
+.st-fila { display: grid; grid-template-columns: 1.6fr 1fr; gap: 18px; }
+.st-fila.inv { grid-template-columns: 1fr 1.6fr; }
+.st-fila > * { min-width: 0; }
+@media (max-width: 1000px) { .st-fila, .st-fila.inv { grid-template-columns: 1fr; } }
+.caja-cuerpo { padding: 16px 18px 10px; }
+
+/* tooltip */
+.st-tooltip { background: #fff; border-radius: 14px; padding: 10px 14px; box-shadow: 0 10px 24px rgba(120, 20, 40, .2); border: 1px solid #ffd0d6; display: flex; flex-direction: column; gap: 2px; font-weight: 600; color: #444; font-size: 13px; }
+.st-tooltip b { color: #c8102e; font-size: 14px; }
+
+/* dona */
+.st-donut { position: relative; }
+.st-donut-centro { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+.st-donut-centro strong { font-size: 34px; font-weight: 900; color: #1d1d22; line-height: 1; }
+.st-donut-centro span { font-size: 12.5px; color: #8a6870; font-weight: 700; }
+.st-leyenda { list-style: none; display: grid; gap: 8px; padding: 4px 4px 12px; }
+.st-leyenda li { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 12px; background: #fff6f7; font-weight: 700; color: #444; }
+.st-leyenda i { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.st-leyenda span { flex: 1; }
+.st-leyenda b { color: #1d1d22; }
+.st-leyenda em { font-style: normal; font-size: 12px; color: #8a6870; min-width: 38px; text-align: right; }
+
+/* ranking de rutas */
+.st-ranking { list-style: none; display: flex; flex-direction: column; gap: 16px; padding: 8px 4px 12px; }
+.st-ranking li { display: flex; align-items: center; gap: 12px; }
+.st-pos { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 900; font-size: 14px; color: #8f0a22; background: #ffe3e7; flex-shrink: 0; }
+.st-pos.p1 { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #fff; box-shadow: 0 6px 14px rgba(245, 158, 11, .45); }
+.st-pos.p2 { background: linear-gradient(135deg, #cbd5e1, #94a3b8); color: #fff; }
+.st-pos.p3 { background: linear-gradient(135deg, #e0a46f, #b9773a); color: #fff; }
+.st-rank-cuerpo { flex: 1; min-width: 0; }
+.st-rank-fila { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; margin-bottom: 6px; color: #333; flex-wrap: wrap; }
+.st-rank-fila span { color: #8a6870; font-weight: 600; font-size: 13px; }
+.st-barra { height: 10px; border-radius: 10px; background: #ffe9ec; overflow: hidden; }
+.st-barra div { height: 100%; border-radius: 10px; background: linear-gradient(90deg, #ff6b7d, #c8102e); transform-origin: left; animation: st-crece .9s ease backwards; }
+@keyframes st-crece { from { transform: scaleX(0); } }
+
+/* historial */
+.st-persona { display: flex; align-items: center; gap: 10px; }
+.st-avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 13px; flex-shrink: 0; }
+.st-chip { display: inline-block; padding: 3px 10px; border-radius: 20px; font-weight: 700; font-size: 13px; background: #ffe3e7; color: #b30f2a; }
+.st-placa { display: inline-block; padding: 3px 10px; border-radius: 8px; border: 1.5px solid #d9d9e0; background: #fafafc; font-family: Consolas, monospace; font-weight: 700; letter-spacing: 1px; font-size: 13px; }
+.st-hora { display: inline-flex; align-items: center; gap: 6px; color: #555; }

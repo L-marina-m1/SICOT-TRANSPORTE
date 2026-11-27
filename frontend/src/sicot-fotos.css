@@ -1,0 +1,35 @@
+﻿/* ---------- banner ---------- */
+.gx-foto { position: absolute; inset: 0; background-size: cover, 100% 100%; background-position: right center, center; background-repeat: no-repeat; }
+.gx-bus { position: absolute; right: 2%; bottom: -4px; height: 68%; width: auto; max-width: 48%; object-fit: contain; z-index: 1; filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .28)); }
+@media (max-width: 600px) { .gx-bus { height: 36%; right: 0; } }
+
+/* ---------- logo ---------- */
+.logo { position: relative; margin-bottom: 16px; }
+.logo::after { content: ''; display: block; height: 1px; margin-top: 16px; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .55), transparent); }
+.logo-emblema { position: relative; width: 84px; height: 84px; margin: 0 auto 10px; display: grid; place-items: center; }
+.logo-anillo { position: absolute; inset: 0; border-radius: 50%; border: 2px dashed rgba(255, 255, 255, .55); animation: gx-giro 24s linear infinite; }
+.logo-circulo { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; color: #c8102e; background: linear-gradient(145deg, #fff, #ffd9de); box-shadow: 0 10px 22px rgba(80, 0, 15, .4), inset 0 -3px 6px rgba(200, 16, 46, .18); }
+.logo-vivo { position: absolute; top: 6px; right: 6px; width: 13px; height: 13px; border-radius: 50%; background: #22c55e; border: 2px solid #fff; animation: gx-pulso 1.8s infinite; }
+.logo h1 { font-size: 38px; font-weight: 900; letter-spacing: 4px; line-height: 1; background: linear-gradient(180deg, #fff 30%, #ffc9d1); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 3px 6px rgba(70, 0, 12, .45)); }
+.logo-ruta { display: block; width: 150px; height: 18px; margin: 4px auto 2px; }
+.logo p { margin-top: 2px; }
+@keyframes gx-giro { to { transform: rotate(360deg); } }
+
+/* ---------- sidebar: la catedral queda al final, debajo de todo ---------- */
+.sidebar { scrollbar-width: none; }
+.sidebar::-webkit-scrollbar { display: none; }
+.sidebar nav { flex: 1 0 auto; }
+.sidebar-pie { flex-shrink: 0; position: relative; overflow: hidden; margin: 14px -14px 0; padding: 0; background: linear-gradient(180deg, rgba(110, 0, 24, 0) 0%, rgba(110, 0, 24, .55) 35%, #6b0a1c 100%); }
+.catedral-img { display: block; width: 118%; max-width: none; height: auto; margin-left: -9%; filter: grayscale(1) contrast(1.15); mix-blend-mode: multiply; opacity: .9; -webkit-mask-image: linear-gradient(to top, #000 88%, transparent); mask-image: linear-gradient(to top, #000 88%, transparent); }
+.sidebar-pie p { position: absolute; left: 0; right: 0; bottom: 14px; margin: 0; text-shadow: 0 2px 6px rgba(80, 0, 15, .55); }
+
+/* pantallas bajas: logo mas compacto para que todo entre */
+@media (max-height: 820px) {
+  .sidebar { padding-top: 16px; }
+  .logo-emblema { width: 64px; height: 64px; margin-bottom: 6px; }
+  .logo-circulo { width: 48px; height: 48px; }
+  .logo-circulo svg { width: 26px; height: 26px; }
+  .logo h1 { font-size: 30px; }
+  .logo::after { margin-top: 10px; }
+  .enlace { padding: 9px 14px; }
+}
