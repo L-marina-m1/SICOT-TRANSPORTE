@@ -10,6 +10,14 @@ class HttpError extends Error {
         return new HttpError(400, message, detalles);
     }
 
+    static unauthorized(message = 'Debes iniciar sesión') {
+        return new HttpError(401, message);
+    }
+
+    static forbidden(message = 'No tienes permiso para realizar esta acción') {
+        return new HttpError(403, message);
+    }
+
     static notFound(message) {
         return new HttpError(404, message);
     }
